@@ -1,0 +1,12 @@
+A LW6DIO
+  #
+  P A
+  N 1
+  #
+  C C LW6DIO ^MC$$lw6dio.duckdns.org:6300^M
+  V LW2EOC^M~~~LW2EOC^M~~~EOC1234^M
+  G *
+  B *
+  R
+  #
+------------------

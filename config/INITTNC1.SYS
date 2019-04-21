@@ -1,0 +1,23 @@
+#
+# SSID$$ssid
+# "ssid" -> SSID del WiFi a conectar
+# La configuración se guarda en el Arduino por lo que es conveniente comentar la
+# línea luego del primer uso (hay riesgo esporádico de salida de comandos por
+# tcp exponiendo SSID y clave del WiFi)
+#
+#SSID$$ssid
+#
+# PASS$$password
+# "password" -> Contraseña de la red de WiFi
+#
+#PASS$$password
+#
+# PORT$$6300
+# Puerto de Telnet (conexiones entrantes)
+#
+#PORT$$6300
+#
+# Comando de reinicio (...)
+#
+RESET$$
+#
