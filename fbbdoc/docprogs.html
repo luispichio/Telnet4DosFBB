@@ -1,0 +1,270 @@
+<HTML>
+
+<!-- Mirrored from www.f6fbb.org/fbbdoc/docprogs.htm by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 23 Apr 2019 13:52:49 GMT -->
+<HEAD>
+  <TITLE>Programming servers (Appendix 13)</TITLE>
+</HEAD>
+<BODY BACKGROUND="img/back_fbb.jpg">
+<P>
+<IMG SRC="img/fbb.gif" WIDTH="32" HEIGHT="32">
+<H1 ALIGN=Center>
+  Programming servers<SMALL>.</SMALL>
+</H1>
+<P ALIGN=Center>
+(Appendix 13)
+<P>
+<PRE>
+
+<BIG><B>Programming technics for servers.</B></BIG>
+
+ The servers are exec programs (.COM or .EXE). They are compact and fast.
+They will work as the function of the messages which are addressed to them.
+
+ They should be compact because the available memory to run their application
+is limited (check the information Ok:nnnn in the status window). They should
+be fast because they are executed in the MsDos environment which is not
+multi-task.
+
+ The programming language can be of any kind provided that it could be
+compiled and that it is able to read parameters which are given appended in
+the command line.
+
+ I wrote three servers in TurboC but I have no equivalent in TurboPascal or
+in TurboBasic, since I usually don't write in these languages. The working
+principle remains always the same whatever language is utilized.
+
+ The program is called with the following manner from the MsDos (Example for
+the REQDIR.COM command) :
+
+ C&gt; REQDIR.COM TEMP.$$$
+
+ TEMP.$$$ is the name of the file in which the message addressed to REQDIR is
+located. It is necessary to read the name of this file in the command line,
+as the one can change from one call to another.
+
+ The file TEMP.$$$ contains the message with the following format :
+
+ SP REQDIR &lt; F6FBB
+ Title of message
+ Text of message line 1
+ Text of message line 2
+ ...
+ Text of message last line.
+ /EX
+
+ The server should then eventually work as a function of the contents of this
+message.
+
+ The server can read and make use of the configuration file of the BBS
+software (in particular <A HREF="fmtinit.html">INIT.SRV</A>) to execute its process.
+
+ If the server generates a return message, it should be APPENDED to the
+incoming mail file to the BBS. The name of this file can be found in
+<A HREF="fmtinit.html">INIT.SRV</A>. Take care : it is necessary to open the incoming mail file in
+APPEND as to add the answer at the end of the file. If it is not done this
+way, the messages which could be waiting in this file are destroyed.
+
+ The incoming mail file is tested each and every minute, except in the case
+of the usage of a service, where it is tested right after.
+
+ The format of the messages in the incoming mail file is identical to the
+format of the file given to the server. Several messages can be written
+sequentially in the file. There should not be blank lines or separations
+between the messages. The routing fields (@ field), and the originator (&lt;
+field) should mandatory be specified. The originator field is the callsign of
+the BBS which is taken from the INIT.SRV file.
+
+
+ Example of server REQFIL written in C language.
+
+/*
+ * REQFIL.C Server example.
+ *
+ * This server is called with a command line like this :
+ *
+ * REQFIL.COM FILE
+ *
+ * FILE is the filename of the message to be answered.
+ *
+ *
+ * This server answers to a message like this :
+ *
+ * SP REQFIL &lt; FC1EBN
+ * TEST.TXT @ F6ABJ
+ * Text is not necessary
+ * /EX
+ *
+ * by a message like this
+ *
+ * # &lt;- This is a local message
+ * SP FC1EBN @ F6ABJ &lt; F6FBB &lt;- command line
+ * Req File : TEST.TXT &lt;- subject
+ * Contents of the file &lt;- text
+ * etc.....
+ * /EX &lt;- end of text (must be in 1st column)
+ *
+ * Appent to mail in bbs file.
+ *
+ *
+ * The server receives from FBB software 1 argument :
+ *
+ * argv[1] = Name of the file including the message received from
+ * FBB software.
+ *
+ * ============================================
+ * The server must APPEND its answer to MAIL.IN
+ * file to avoid destroying existing mail.
+ * ============================================
+ *
+ * As this server opens the INIT.SRV file, it must be in the same
+ * directory.
+ *
+ */
+
+ #include &lt;stdio.h&gt;
+ #include &lt;fcntl.h&gt;
+ #include &lt;sys/stat.h&gt;
+
+ /* Offsets of parameters from INIT.SRV */
+
+ #define BBS_CALL 1
+ #define USER_DIR 8
+ #define MAIL_IN 14
+
+ main(int argc, char **argv)
+ {
+ #define LINE 80
+   int end = 0;
+   int index = 0;
+   FILE *fptr;
+   char buffer[LINE];
+   char sender[LINE];
+   char route[LINE];
+   char file[LINE];
+   char bbs_call[LINE];
+   char base_dir[LINE];
+   char mail_in[LINE];
+
+   if (argc != 2) exit(1);            /* Check the number of arguments */
+
+   /* The first task is to open and then read the message */
+
+   fptr = fopen(argv[1], "rt") ;      /* Open the received message */
+   if (fptr == NULL) exit(1);
+
+   fgets(buffer, LINE, fptr);         /* Read the command line */
+   sscanf(buffer, "%*s %*s %*s %s\n", sender);
+
+   *file = *route = '\0';
+   fgets(buffer, LINE, fptr);         /* Read the subject */
+   strupr(buffer);                    /* Capitalize */
+
+   /* Scan dir and route */
+   sscanf(buffer, "%[^@\n]%[^\n]", file, route);
+
+   fclose(fptr);                   /* All needed is read in the message */
+
+   /* We must get some informations from the INIT.SRV file */
+
+   fptr = fopen("INIT.SRV", "rt"); /* Open the file */
+   if (fptr == NULL) exit(1);
+
+   /* Scan the file to get the requested lines. */
+   while (!end) {
+     fgets(buffer, LINE, fptr) ;
+     if (*buffer == '#') continue; /* Comments ignored */
+
+     switch (++index) {
+
+     case BBS_CALL:
+       sscanf(buffer,"%[0-9A-Za-z]", bbs_call);
+       break; /* Callsign */
+
+     case USER_DIR:
+       sscanf(buffer,"%s\n", base_dir);
+       break; /* Users directory */
+
+     case MAIL_IN :
+       sscanf(buffer,"%s\n", mail_in);
+       end = 1; /* Mail in file */
+       break;
+
+     }
+   }
+
+   fclose(fptr);
+
+   /* Append the answer to mail in file */
+   /* Mail in file is opened in appent text mode */
+
+   if (fptr = fopen(mail_in, "at")) {
+
+     /* Tell that this is a message from this BBS */
+
+     fprintf(fptr, "#\n");
+
+     /* Send command line */
+     fprintf(fptr, "SP %s %s &lt; %s\n",
+     sender, route, bbs_call);
+
+     /* Send subject and requested file */
+     send_file(fptr, base_dir, file);
+
+     /* Send end of message */
+     fprintf(fptr, "/EX\n");
+
+     /* That's all ! */
+     fclose(fptr);
+   }
+   exit(0);                                /* Tell BBS all is correct */
+ }
+
+ int points(char *ptr)   /* Looks for a ".." sequence in the path */
+ {
+   while (*ptr) {
+     if ((*ptr == '.') &amp;&amp; (*(ptr+1) == '.')) return(1);
+     ++ptr;
+   }
+   return(0);          /* ".." not fond ! */
+ }
+
+ send_file(FILE *fptr, char *base_dir, char *filename)
+ {
+ #define BUF_SIZE 1000
+   int fd;
+   int nb;
+   char path[256];
+   char buffer[BUF_SIZE];
+   char last_char;
+
+   sprintf(path, "%s%s", base_dir, filename);       /* Complete path */
+
+   fprintf(fptr, "ReqFil 1.1 : %s\n", filename);       /* Subject */
+
+   if ((!points(path)) &amp;&amp; ((fd = open(path, O_RDONLY | O_TEXT)) != -1)) {
+     while (nb = read(fd, buffer, BUF_SIZE)) {
+       fwrite(buffer, nb, 1, fptr);
+       last_char = buffer[nb-1];
+     }
+     close(fd);
+
+     /* Be sure /EX will be in first column */
+     if (last_char != '\n') fputc('\n', fptr);
+
+   }
+   else fprintf(fptr, "File not found !\n");
+ }
+
+
+
+
+<A HREF="index.html"><IMG SRC="img/contents.gif" WIDTH="108" HEIGHT="28"></A>
+
+<A HREF="http://www.f6fbb.org/"><IMG SRC="img/button_home.gif" WIDTH="90" HEIGHT="29"></A>
+
+<FONT COLOR="#800000">This page was last updated <!--#config timefmt="%d-%b-%y"--><!--#echo var="LAST_MODIFIED"--></FONT>
+
+</PRE>
+</BODY>
+<!-- Mirrored from www.f6fbb.org/fbbdoc/docprogs.htm by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 23 Apr 2019 13:52:49 GMT -->
+</HTML>

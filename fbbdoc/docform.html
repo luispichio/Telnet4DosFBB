@@ -1,0 +1,99 @@
+<HTML>
+
+<!-- Mirrored from www.f6fbb.org/fbbdoc/docform.htm by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 23 Apr 2019 13:52:35 GMT -->
+<HEAD>
+  <TITLE>Format of FBB-files, menu</TITLE>
+</HEAD>
+<BODY BACKGROUND="img/back_fbb.jpg">
+<P>
+<IMG SRC="img/fbb.gif" WIDTH="32" HEIGHT="32">
+<H1 ALIGN=Center>
+  <SMALL>Format of FBB system-files.</SMALL>
+</H1>
+<P>
+<PRE> The miscellaneous files used for the configuration and the operation of this
+BBS software have a very accurate syntax. The good behaviour of your software
+depends upon how these files have been configured.
+
+ The first file to be configured is <A HREF="fmtinit.html">INIT.SRV</A>. This file contains the
+information on the BBS and about your hardware.
+
+ The system holds more than 10 text files which can be configured. Do not
+forget to save the previous content of the file before modification. This
+will ease the restore which might often be necessary. Never delete a
+file, you might loose major data. Never modify a binary file. Some files have
+a preset number of lines, and adding or deleting lines might generate an
+error message. This is the case of the configuration files and text files.
+
+ In most of the configuration files and within the text files, the character
+# in the FIRST COLUMN means that the line is a comment, and will not be taken
+into account for the number of lines.
+
+<FONT COLOR="#000000"> Files may stay </FONT>in different directories, FBB, BIN, SYSTEM, etc... The
+default directory is indicated after the file name inside parentheses.
+
+<IMG SRC="img/cyan.gif" WIDTH="14" HEIGHT="14"><BIG><B>Standard system-files (for sysop to change):</B></BIG>
+
+
+<A HREF="fmtrunfb.html">RUNFBB.BAT</A>	Startup-file.  	<FONT COLOR="#ff0000"><B>Only for WinFBB</B></FONT>	
+<A HREF="fmtxfbb.html">XFBB.SH</A>         Startup-file.	<FONT COLOR="#ff0000"><B>Only for LinFBB</B></FONT>    
+<A HREF="fmtappel.html">APPEL.BAT</A> 	Startup-file.  	<FONT COLOR="#ff0000"><B>Only for DosFBB</B></FONT>		
+<A HREF="fmtdsz.html">DSZ.BAT</A> 	Start binary transfer	
+<A HREF="fmtinit.html">INIT.SRV</A>	BBS initializing file	
+<A HREF="fmtepurm.html">EPURMESS.INI</A>	Configure housekeeping	
+<A HREF="fmtport.html">PORT.SYS</A> 	Configure ports
+<A HREF="fmtswapp.html">SWAPP.SYS</A>	Swap to/from/etc in messages
+<A HREF="finittnc.html">INITTNCx.SYS</A>	Startup-parametres for TNC and/or modem
+<A HREF="fmtmaint.html">MAINTx.SYS</A>	Closedown-parametres for TNC and/or modem
+<A HREF="fmtbeaco.html">BEACONx.SYS</A>	Configure beacon 
+<A HREF="fmtbbs.html">BBS.SYS</A> 	Define all BBSs that receive bulletins
+<A HREF="fmtforwa.html">FORWARD.SYS</A> 	The main forward-file
+<A HREF="fmtcron.html">CRON.SYS</A> 	Run certain tasks/programs every hour
+<A HREF="fmtrejec.html">REJECT.SYS</A>	List of callsigns to be rejected/held
+<A HREF="fmtpassw.html">PASSWD.SYS</A>	Password-file for remote sysops
+<A HREF="fmtprote.html">PROTECT.SYS</A>	Define "safe" directories
+<A HREF="fmtlang.html">LANGUE.SYS</A> 	Define languages
+<A HREF="fmttheme.html">THEMES.SYS</A>	Define various theme-zones.
+<A HREF="fmterror.html">ERROR.SYS</A>	File for logging errors
+<A HREF="fmtetat.html">ETAT.SYS</A>	Shows when the BBS was put in service
+<A HREF="fmtheard.html">HEARD.BIN</A>    	Stations heard on radio-ports
+<A HREF="fmtredis.html">REDIST.SYS</A> 	Define bulletin redistribution
+<A HREF="fmttxt.html#TXT">english.TXT</A>	Texts used by the BBS. One for each language
+<A HREF="fmttxt.html#HLP">english.HLP</A>	User-help. One for each language
+<A HREF="fmttxt.html#ENT">english.ENT</A>	Logon-text. One for each language, and for modem/telnet.
+<A HREF="fmttxt.html#NEW">english.NEW</A>	Logon-text. One for each language. Shows ONCE
+<A HREF="fmttxt.html#INF">english.INF</A>	Texts used by the BBS. One for each language
+<A HREF="fmtlog.html">FBBLOG.nn</A>	Logfile for the BBS.  One for each week
+<A HREF="fmtmemo.html">MEMO.SYS</A>	Define "hot keys" (DosFBB and WinFBB different)
+<A HREF="fmtsat.html">nnnnn.SAT</A> 	Characteristics of satellites
+<A HREF="fmnewindex.html">NEWDOC.SYS</A>	Authorize callsigns for NEWDOC-server
+
+<IMG SRC="img/red.gif" WIDTH="14" HEIGHT="14"><BIG><B>Other file-formats (please do not change unless you </B></BIG>
+   <BIG><B>are 100% sure that you know what you are doing):</B></BIG>
+   (Incorrectly modifying these files will most likely cause your
+    BBS to work incorrectly, or maybe even crash)
+
+<A HREF="fmstatis.html">STATIS.DAT</A>	Statistical data of BBS-usage
+<A HREF="fmtoptio.html">OPTIONS.SYS</A>	Options for console-usage
+<A HREF="fmtdirme.html">DIRMES.SYS</A>	Records for every single message
+<A HREF="fmttpsta.html">TPSTAT.SYS</A>	
+<A HREF="fmtwfbid.html">WFBID.SYS</A> 	Records of BIDs
+<A HREF="fmtinf.html">INF.SYS</A> 	Records of users
+<A HREF="fmtyappl.html">YAPPLBL.DAT</A>	Information on binary files
+<A HREF="fmtsatel.html">SATEL.DAT</A>	Information on satellites
+<A HREF="fmtwpsys.html">WP.SYS</A> 		White Pages database
+<A HREF="fmtmess.html">MESS.WP</A>		File from WP tp update BBS
+
+
+
+
+<A HREF="index.html"><IMG SRC="img/contents.gif" WIDTH="108" HEIGHT="28"></A>
+
+<A HREF="http://www.f6fbb.org/"><IMG SRC="img/button_home.gif" WIDTH="90" HEIGHT="29"></A>
+
+<FONT COLOR="#800000">This page was last updated <!--#config timefmt="%d-%b-%y"--><!--#echo var="LAST_MODIFIED"--></FONT>
+
+</PRE>
+</BODY>
+<!-- Mirrored from www.f6fbb.org/fbbdoc/docform.htm by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 23 Apr 2019 13:52:41 GMT -->
+</HTML>
