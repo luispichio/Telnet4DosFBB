@@ -1,6 +1,9 @@
 # Telnet4DosFBB
 Cliente / Servidor Telnet (Tunel TCP <-> Serial) para DosFBB
-Conversor que simula modem teléfonico 
+
+Conversor que simula modem teléfonico conectado a puerto serie permitiendo...
+
+![](images/foto4.jpg)
 
 # Limitaciones del sistema
 1. Una conexión entrante / saliente a la vez: La interfaz de módem telefónico es para conexiones M2M (máquina a máquina).
@@ -10,17 +13,30 @@ Conversor que simula modem teléfonico
 
 # Conexionado
 El conversor emula (y utiliza) todas las señales de control de un módem estándar.
+
 El cable que debe utilizarse es un DTE <-> DCE con conexión pin a pin (sin inversiones) en los pines: 
+
+![Cable DTE <-> DCE](images/dte2dce.gif)
+
 Para mayor información consultar la documentación oficial: http://www.f6fbb.org/fbbdoc/fmtphnmo.htm
 
 # Configuración
 
-Se adjuntan archivos de [ejemplos de configuración](config/)
+## BBS
 
-## APPEL.BAT
+Los usuarios del BBS no tiene autorización por defecto para conectar al BBS a traves del módem (Telnet / TCP en nuestro caso).
+
+El SysOp debe habilitar la autorización para acceso por módem para cada usuario vía el comando de SysOP `EU` (editar usuario), habilitando el flag `M` (de módem) y luego asociando una contraseña con el comando `W`.
+
+## Archivos
+
+Se adjuntan archivos [ejemplo de configuración](config/)
+
+### APPEL.BAT
 Debe incluír la inicialización del driver fbbios previo a la carga de 'serv.exe'.
 
 Sintaxis: `FBBIOS [# puerto] [dirección de puerto] [# irq]`.
+
 Para mayor información consultar la documentación oficial: http://www.f6fbb.org/fbbdoc/fmtfbbio.htm
 
 ```
@@ -28,8 +44,43 @@ fbbios 1 03F8 4
 serv %1
 ```
 
-## INITTNCx.SYS
+### PORT.SYS
+
+Cantidad de puertos / TNC acorde al sistema
+```
+#Ports TNCs
+1      1
+```
+
+Número de puerto serie, interfaz (3 -> Módem telefónico con FBBIOS), dirección de puerto y velocidad en baudios.
+Se utiliza 57600 (máximo soportado por FBBIOS >1.3) para mejor rendimiento aunque puede no ser funcional dependiendo de las capacidades del hardware / pc.
+La misma configuración aplica al driver FBBIOS que debe precargarse en APPEL.BAT.
+
+```
+#Com Interface Address (device)   Baud
+1    3         3F8                57600
+```
+
+#### Configuración específica
+* NbCh -> 1 (la interfaz soporta 1 canal)
+* Com -> acorde a la configuración definida previamente
+* M/P-Fwd -> inicio / intervalo de fwd de acuerdo al gusto (se aconseja no ser demasiado agresivo)
+* Mode -> UMR (U = Normal, M = Módem telefónico, R = Permite conctar en solo lectura aunque no se tengan las credenciales de acceso).
+* El resto de los parámetros son ignorados (creo) por la interfaz.
+
+```
+# Same number of lines as TNCs:
+#
+#TNC NbCh Com MultCh Pacln Maxfr NbFwd MxBloc M/P-Fwd Mode Freq
+0    0    0   0      0     0     0     0      00/60   ---- File-fwd.
+1    1    1   1      250   1     1     5      10/30   UMR  Telnet
+```
+
+### INITTNCx.SYS
 Lista de comenados que envía el FBB al inicializar y posterior a una conexión.
+
+Reemplazar `x` por número de TNC (depende de configuración en `PORT.SYS`).
+
 Permite configurar parámetros de inicialización del conversor, tales como:
 1. SSID y Contraseña de WiFi.
 2. DDNS (duckdns.org).
@@ -39,25 +90,43 @@ Permite configurar parámetros de inicialización del conversor, tales como:
 
 Detalle de comandos soportados:
 
-* `SSID$ssid` -> `ssid` es SSID del WiFi a conectar
-* `PASS$password` -> `password` -> Contraseña de la red de WiFi
-* `PORT$numero` -> `numero` -> Puerto de Telnet (conexiones entrantes)
+* `C$host:port` -> `host:port`: Servidor / puerto al que conectar.
+* `SSID$ssid` -> `ssid`: SSID del WiFi a conectar
+* `PASS$password` -> `password`: Contraseña de la red de WiFi
+* `PORT$numero` -> `numero`: Puerto de Telnet (conexiones entrantes)
+* `DUCK_DNS_UPDATE_TIME$tiempo` -> `tiempo` -> ...
+* `DUCK_DNS_DOMAIN$dominio` -> `dominio`: ...
+* `DUCK_DNS_TOKEN$token` -> `token`: ...
+* `ONLINE$` -> Conversor "en linea": Atiende las conexiones entrantes)
+* `OFFLINE$` -> Conversor "fuera de línea": Rechaza (y saluda) las conexiones entrantes.
 * `RESET$` -> Reinicio del conversor
+  
+### MAINTx.SYS
 
-## Archivo de forward
+Lista de comenados que envía el FBB al entrar en modo mantenimiento (DOS Gateway, al salir, etc).
+
+Reemplazar `x` por número de TNC (depende de configuración en `PORT.SYS`).
+
+Comando "utilizable":
+
+* `OFFLINE$` -> Conversor "fuera de línea": Rechaza (y saluda) las conexiones entrantes.
+
+### Archivo de forward
 
 La sintaxis del comando de llamada difiere del utilizado en las versiones de FBB que soportal telnet:
 Sintaxis: `^MC$$host:puerto^M`
 
 `^M` previo -> para eliminar otro comando / basura que pueda estar encolado en la interfaz.
+
 `C$$host:puerto` -> Conectar a `host` : `puerto` (si no se especifica este último se utiliza 23).
+
 `^M` final -> para que el comando sea aceptado.
 
 ```
 C C LW6DIO ^MC$$lw6dio.duckdns.org:6300^M
 ```
 
-## Parámetros configurables desde el Firmware (código fuente)
+### Parámetros configurables desde el Firmware (código fuente)
 
 ```
 // Modo depuración

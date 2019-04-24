@@ -17,7 +17,7 @@
 #
 #PORT$$6300
 #
-# Comando de reinicio (...)
+# Comando de reinicio (recomendado para mantener estabilidad a largo plazo [24/7])
 #
 RESET$$
 #
